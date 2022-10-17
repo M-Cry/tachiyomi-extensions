@@ -7,7 +7,6 @@ import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.ParsedHttpSource
 import eu.kanade.tachiyomi.util.asJsoup
-import okhttp3.Headers
 import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Document
@@ -26,10 +25,6 @@ class Team1x1 : ParsedHttpSource() {
 
     override val client = network.cloudflareClient
 
-    override fun headersBuilder(): Headers.Builder = Headers.Builder()
-        .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0")
-        .add("Content-Encoding", "identity")
-
     // Popular
 
     override fun popularMangaRequest(page: Int): Request {
@@ -42,7 +37,7 @@ class Team1x1 : ParsedHttpSource() {
         return SManga.create().apply {
             element.select("a[title]").let {
                 title = element.select("div.tt.float-right").text()
-                setUrlWithoutDomain(it.attr("href"))
+                setUrlWithoutDomain(it.attr("abs:href"))
             }
             thumbnail_url = element.select("img").attr("abs:src")
         }
@@ -61,11 +56,11 @@ class Team1x1 : ParsedHttpSource() {
     override fun latestUpdatesFromElement(element: Element): SManga = SManga.create().apply {
         val lazysrc = element.select("img").attr("data-pagespeed-lazy-src")
         thumbnail_url = if (lazysrc.isNullOrEmpty()) {
-            element.select("img").attr("src")
+            element.select("img").attr("abs:src")
         } else {
             lazysrc
         }
-        setUrlWithoutDomain(element.select("a:has(img)").attr("href"))
+        setUrlWithoutDomain(element.select("a:has(img)").attr("abs:href"))
         title = element.select("a>h3").text()
     }
 
@@ -79,8 +74,14 @@ class Team1x1 : ParsedHttpSource() {
         "ol.list-group> li.list-group-item.d-flex.justify-content-between.align-items-start"
 
     override fun searchMangaFromElement(element: Element) = SManga.create().apply {
-        setUrlWithoutDomain(element.select("a:has(img)").attr("abs:href"))
-        title = element.select("div.ms-2.me-auto.mt-3.result-info+a.fw-bold").text()
+        val lazysrc = element.select("img").attr("data-pagespeed-lazy-src")
+        thumbnail_url = if (lazysrc.isNullOrEmpty()) {
+            element.select("img").attr("abs:src")
+        } else {
+            lazysrc
+        }
+        setUrlWithoutDomain(element.select("div.image-parent> a").attr("href"))
+        title = element.select("a.fw-bold").text()
     }
     override fun searchMangaNextPageSelector(): String? = null
 
@@ -89,7 +90,7 @@ class Team1x1 : ParsedHttpSource() {
     override fun mangaDetailsParse(document: Document): SManga {
 
         return SManga.create().apply {
-            thumbnail_url = document.select("div.text-right > img.shadow-smg").attr("src")
+            thumbnail_url = document.select("div.text-right+img.shadow-sm").attr("abs:src, abs:img")
             title = document.select("div.author-info-title.mb-3 > h1").text()
             author = artist
             artist = document.select("div:nth-child(7) small:nth-child(2) a").text()

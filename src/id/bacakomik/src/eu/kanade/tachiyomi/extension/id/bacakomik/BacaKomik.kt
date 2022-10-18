@@ -1,4 +1,4 @@
-package eu.kanade.tachiyomi.extension.id.komikindoid
+package eu.kanade.tachiyomi.extension.id.bacakomik
 
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.source.model.Filter
@@ -7,6 +7,7 @@ import eu.kanade.tachiyomi.source.model.Page
 import eu.kanade.tachiyomi.source.model.SChapter
 import eu.kanade.tachiyomi.source.model.SManga
 import eu.kanade.tachiyomi.source.online.ParsedHttpSource
+import okhttp3.Headers
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -16,15 +17,19 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 
-class KomikIndoID : ParsedHttpSource() {
-    override val name = "KomikIndoID"
-    override val baseUrl = "https://komikindo.id"
+class BacaKomik : ParsedHttpSource() {
+    override val name = "BacaKomik"
+    override val baseUrl = "https://bacakomik.co"
     override val lang = "id"
     override val supportsLatest = true
     override val client: OkHttpClient = network.cloudflareClient
     private val dateFormat: SimpleDateFormat = SimpleDateFormat("MMM d, yyyy", Locale.US)
 
-    // similar/modified theme of "https://bacakomik.co"
+    // similar/modified theme of "https://komikindo.id"
+
+    // Formerly "Bacakomik" -> now "BacaKomik"
+    override val id = 4383360263234319058
+
     override fun popularMangaRequest(page: Int): Request {
         return GET("$baseUrl/daftar-manga/page/$page/?order=popular", headers)
     }
@@ -47,16 +52,18 @@ class KomikIndoID : ParsedHttpSource() {
     override fun searchMangaFromElement(element: Element): SManga {
         val manga = SManga.create()
         manga.thumbnail_url = element.select("div.limit img").attr("src")
-        manga.title = element.select("div.tt h4").text()
         element.select("div.animposx > a").first().let {
             manga.setUrlWithoutDomain(it.attr("href"))
+            manga.title = it.attr("title")
         }
         return manga
     }
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
-        val url = "$baseUrl/daftar-manga/page/$page/".toHttpUrlOrNull()!!.newBuilder()
-            .addQueryParameter("title", query)
+        val builtUrl = if (page == 1) "$baseUrl/daftar-manga/" else "$baseUrl/daftar-manga/page/$page/?order="
+        val url = builtUrl.toHttpUrlOrNull()!!.newBuilder()
+        url.addQueryParameter("title", query)
+        url.addQueryParameter("page", page.toString())
         filters.forEach { filter ->
             when (filter) {
                 is AuthorFilter -> {
@@ -86,7 +93,7 @@ class KomikIndoID : ParsedHttpSource() {
                 }
             }
         }
-        return GET(url.toString(), headers)
+        return GET(url.build().toString(), headers)
     }
     override fun mangaDetailsParse(document: Document): SManga {
         val infoElement = document.select("div.infoanime").first()
@@ -110,8 +117,8 @@ class KomikIndoID : ParsedHttpSource() {
     }
 
     private fun parseStatus(element: String): Int = when {
-        element.contains("berjalan", true) -> SManga.ONGOING
-        element.contains("tamat", true) -> SManga.COMPLETED
+        element.lowercase().contains("berjalan") -> SManga.ONGOING
+        element.lowercase().contains("tamat") -> SManga.COMPLETED
         else -> SManga.UNKNOWN
     }
 
@@ -127,7 +134,7 @@ class KomikIndoID : ParsedHttpSource() {
     }
 
     fun parseChapterDate(date: String): Long {
-        return if (date.contains("lalu")) {
+        return if (date.contains("yang lalu")) {
             val value = date.split(' ')[0].toInt()
             when {
                 "detik" in date -> Calendar.getInstance().apply {
@@ -178,7 +185,7 @@ class KomikIndoID : ParsedHttpSource() {
     override fun pageListParse(document: Document): List<Page> {
         val pages = mutableListOf<Page>()
         var i = 0
-        document.select("div.imgch img").forEach { element ->
+        document.select("div.imgch-auh img").forEach { element ->
             val url = element.attr("onError").substringAfter("src='").substringBefore("';")
             i++
             if (url.isNotEmpty()) {
@@ -188,7 +195,23 @@ class KomikIndoID : ParsedHttpSource() {
         return pages
     }
 
-    override fun imageUrlParse(document: Document): String = throw UnsupportedOperationException("Not Used")
+    override fun imageUrlParse(document: Document) = ""
+
+    override fun imageRequest(page: Page): Request {
+        if (page.imageUrl!!.contains("i2.wp.com")) {
+            val headers = Headers.Builder()
+            headers.apply {
+                add("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3")
+            }
+            return GET(page.imageUrl!!, headers.build())
+        } else {
+            val imgHeader = Headers.Builder().apply {
+                add("User-Agent", "Mozilla/5.0 (Linux; U; Android 4.1.1; en-gb; Build/KLP) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Safari/534.30")
+                add("Referer", baseUrl)
+            }.build()
+            return GET(page.imageUrl!!, imgHeader)
+        }
+    }
 
     private class AuthorFilter : Filter.Text("Author")
 
@@ -241,32 +264,64 @@ class KomikIndoID : ParsedHttpSource() {
     )
 
     private fun getGenreList() = listOf(
+        Genre("4-Koma", "4-koma"),
+        Genre("4-Koma. Comedy", "4-koma-comedy"),
         Genre("Action", "action"),
+        Genre("Action. Adventure", "action-adventure"),
+        Genre("Adult", "adult"),
         Genre("Adventure", "adventure"),
         Genre("Comedy", "comedy"),
-        Genre("Crime", "crime"),
+        Genre("Cooking", "cooking"),
+        Genre("Demons", "demons"),
+        Genre("Doujinshi", "doujinshi"),
         Genre("Drama", "drama"),
+        Genre("Ecchi", "ecchi"),
+        Genre("Echi", "echi"),
         Genre("Fantasy", "fantasy"),
-        Genre("Girls Love", "girls-love"),
+        Genre("Game", "game"),
+        Genre("Gender Bender", "gender-bender"),
+        Genre("Gore", "gore"),
         Genre("Harem", "harem"),
         Genre("Historical", "historical"),
         Genre("Horror", "horror"),
         Genre("Isekai", "isekai"),
-        Genre("Magical Girls", "magical-girls"),
+        Genre("Josei", "josei"),
+        Genre("Magic", "magic"),
+        Genre("Manga", "manga"),
+        Genre("Manhua", "manhua"),
+        Genre("Manhwa", "manhwa"),
+        Genre("Martial Arts", "martial-arts"),
+        Genre("Mature", "mature"),
         Genre("Mecha", "mecha"),
         Genre("Medical", "medical"),
-        Genre("Philosophical", "philosophical"),
+        Genre("Military", "military"),
+        Genre("Music", "music"),
+        Genre("Mystery", "mystery"),
+        Genre("One Shot", "one-shot"),
+        Genre("Oneshot", "oneshot"),
+        Genre("Parody", "parody"),
+        Genre("Police", "police"),
         Genre("Psychological", "psychological"),
         Genre("Romance", "romance"),
-        Genre("Sci-Fi", "sci-fi"),
+        Genre("Samurai", "samurai"),
+        Genre("School", "school"),
+        Genre("School Life", "school-life"),
+        Genre("Sci-fi", "sci-fi"),
+        Genre("Seinen", "seinen"),
+        Genre("Shoujo", "shoujo"),
         Genre("Shoujo Ai", "shoujo-ai"),
+        Genre("Shounen", "shounen"),
         Genre("Shounen Ai", "shounen-ai"),
         Genre("Slice of Life", "slice-of-life"),
+        Genre("Smut", "smut"),
         Genre("Sports", "sports"),
-        Genre("Superhero", "superhero"),
+        Genre("Super Power", "super-power"),
+        Genre("Supernatural", "supernatural"),
         Genre("Thriller", "thriller"),
         Genre("Tragedy", "tragedy"),
-        Genre("Wuxia", "wuxia"),
+        Genre("Vampire", "vampire"),
+        Genre("Webtoon", "webtoon"),
+        Genre("Webtoons", "webtoons"),
         Genre("Yuri", "yuri")
     )
 

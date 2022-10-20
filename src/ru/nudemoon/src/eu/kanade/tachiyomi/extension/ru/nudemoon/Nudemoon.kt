@@ -20,7 +20,7 @@ class Nudemoon : ParsedHttpSource() {
 
     override val name = "Nude-Moon"
 
-    override val baseUrl = "https://nude-moon.net"
+    override val baseUrl = "https://nude-moon.me"
 
     override val lang = "ru"
 
@@ -29,6 +29,7 @@ class Nudemoon : ParsedHttpSource() {
     private val cookiesHeader by lazy {
         val cookies = mutableMapOf<String, String>()
         cookies["NMfYa"] = "1"
+        cookies["nm_mobile"] = "1"
         buildCookies(cookies)
     }
 
@@ -47,7 +48,7 @@ class Nudemoon : ParsedHttpSource() {
                 .build()
 
             chain.proceed(newReq)
-        }.build()!!
+        }.build()
 
     override fun popularMangaRequest(page: Int): Request =
         GET("$baseUrl/all_manga?views&rowstart=${30 * (page - 1)}", headers)
@@ -63,12 +64,10 @@ class Nudemoon : ParsedHttpSource() {
             var genres = ""
             var order = ""
             for (filter in if (filters.isEmpty()) getFilterList() else filters) {
-                when (filter) {
-                    is GenreList -> {
-                        filter.state.forEach { f ->
-                            if (f.state) {
-                                genres += f.id + '+'
-                            }
+                if (filter is GenreList) {
+                    filter.state.forEach { f ->
+                        if (f.state) {
+                            genres += f.id + '+'
                         }
                     }
                 }
@@ -76,21 +75,21 @@ class Nudemoon : ParsedHttpSource() {
 
             if (genres.isNotEmpty()) {
                 for (filter in filters) {
-                    when (filter) {
-                        is OrderBy -> {
-                            // The site has no ascending order
-                            order = arrayOf("&date", "&views", "&like")[filter.state!!.index]
-                        }
+                    if (filter is OrderBy) {
+                        // The site has no ascending order
+                        order = arrayOf("&date", "&views", "&like")[filter.state!!.index]
                     }
                 }
                 "$baseUrl/tags/${genres.dropLast(1)}$order&rowstart=${30 * (page - 1)}"
             } else {
                 for (filter in filters) {
-                    when (filter) {
-                        is OrderBy -> {
-                            // The site has no ascending order
-                            order = arrayOf("all_manga?date", "all_manga?views", "all_manga?like")[filter.state!!.index]
-                        }
+                    if (filter is OrderBy) {
+                        // The site has no ascending order
+                        order = arrayOf(
+                            "all_manga?date",
+                            "all_manga?views",
+                            "all_manga?like"
+                        )[filter.state!!.index]
                     }
                 }
                 "$baseUrl/$order&rowstart=${30 * (page - 1)}"
@@ -99,7 +98,7 @@ class Nudemoon : ParsedHttpSource() {
         return GET(url, headers)
     }
 
-    override fun popularMangaSelector() = "tr[valign=top]"
+    override fun popularMangaSelector() = "table.news_pic2"
 
     override fun latestUpdatesSelector() = popularMangaSelector()
 
@@ -108,7 +107,7 @@ class Nudemoon : ParsedHttpSource() {
     override fun popularMangaFromElement(element: Element): SManga {
         val manga = SManga.create()
 
-        manga.thumbnail_url = element.select("img[class^=news]").attr("abs:src")
+        manga.thumbnail_url = element.select("img.news_pic2").attr("abs:src")
         element.select("a:has(h2)").let {
             manga.title = it.text()
             manga.setUrlWithoutDomain(it.attr("href"))
@@ -123,7 +122,7 @@ class Nudemoon : ParsedHttpSource() {
     override fun searchMangaFromElement(element: Element): SManga =
         popularMangaFromElement(element)
 
-    override fun popularMangaNextPageSelector() = "a.small:contains(Следующая)"
+    override fun popularMangaNextPageSelector() = "a.small:contains(>)"
 
     override fun latestUpdatesNextPageSelector() = popularMangaNextPageSelector()
 
@@ -131,59 +130,70 @@ class Nudemoon : ParsedHttpSource() {
 
     override fun mangaDetailsParse(document: Document): SManga {
         val manga = SManga.create()
-        manga.author = document.select("div.tbl1 a[href^=mangaka]").text()
-        manga.genre = document.select("div.tbl2 span.tag-links a").joinToString { it.text() }
+        manga.author = document.select("table.news_pic2 a[href*=mangaka]").text()
+        manga.genre = document.select("table.news_pic2 div.tag-links a").joinToString { it.text() }
         manga.description = document.select(".description").text()
-        manga.thumbnail_url = document.select("tr[valign=top] img[class^=news]").attr("abs:src")
+        manga.thumbnail_url = document.selectFirst("meta[property=og:image]").attr("abs:content")
 
         return manga
     }
 
     override fun chapterListRequest(manga: SManga): Request {
-
-        val chapterUrl = if (manga.title.contains("\\s#\\d+".toRegex()))
-            "/vse_glavy/" + manga.title.split("\\s#\\d+".toRegex())[0].replace("\\W".toRegex(), "_")
-        else
-            manga.url
-
-        return GET(baseUrl + chapterUrl, headers)
+        return GET(baseUrl + manga.url, headers)
     }
 
     override fun chapterListSelector() = popularMangaSelector()
 
-    override fun chapterListParse(response: Response): List<SChapter> {
-        val responseUrl = response.request.url.toString()
+    override fun chapterListParse(response: Response): List<SChapter> = mutableListOf<SChapter>().apply {
         val document = response.asJsoup()
 
-        if (!responseUrl.contains("/vse_glavy/")) {
-            return listOf(chapterFromElement(document))
+        if (document.select("td.button a:contains(Все главы)").isEmpty()) {
+            add(chapterFromElement(document))
+        } else {
+            var pageListDocument: Document
+            val pageListLink = document.select("td.button a:contains(Все главы)").attr("href")
+            client.newCall(
+                GET(baseUrl + pageListLink, headers)
+            ).execute().run {
+                if (!isSuccessful) {
+                    close()
+                    throw Exception("HTTP error $code")
+                }
+                pageListDocument = this.asJsoup()
+            }
+            pageListDocument.select("table.news_pic2").sortedByDescending { it.selectFirst("tr[valign=top] a:has(h2) h2").text() }.forEach {
+                val chapter = SChapter.create()
+                val nameAndUrl = it.select("tr[valign=top] a:has(h2)")
+                chapter.name = nameAndUrl.select("h2").text()
+                chapter.setUrlWithoutDomain(nameAndUrl.attr("abs:href"))
+                chapter.scanlator = it.select("tr[valign=top] td[align=left] a[href*=perevod]").text()
+                chapter.date_upload = it.selectFirst("tr[valign=top] td[align=left] span.small2").text().let {
+                    textDate ->
+                    try {
+                        SimpleDateFormat("d MMMM yyyy", Locale("ru")).parse(textDate.replace("Май", "Мая"))?.time ?: 0L
+                    } catch (e: Exception) {
+                        0
+                    }
+                }
+                val floatRegex = Regex("^([+-]?\\d*\\.?\\d*)\$")
+                chapter.chapter_number = floatRegex.find(chapter.name).toString().toFloatOrNull() ?: -1f
+                add(chapter)
+            }
         }
-
-        // Order chapters by its number 'cause on the site they are in random order
-        return document.select(chapterListSelector()).sortedByDescending {
-            val regex = "#(\\d+)".toRegex()
-            val chapterName = it.select("img[class^=news]").first().parent().attr("title")
-            regex.find(chapterName)?.groupValues?.get(1)?.toInt() ?: 0
-        }.map { chapterFromElement(it) }
     }
 
     override fun chapterFromElement(element: Element): SChapter {
         val chapter = SChapter.create()
 
-        val infoElem = element.select("tr[valign=top]").first().parent()
-        val chapterName = infoElem.select("h1, h2").text()
-        var chapterUrl = infoElem.select("a[title]:has(img)").attr("href")
-        if (!chapterUrl.contains("-online")) {
-            chapterUrl = chapterUrl.replace("/\\d+".toRegex(), "$0-online")
-        } else {
-            chapter.chapter_number = 1F
-        }
+        val chapterName = element.select("table td.bg_style1 h1").text()
+        val chapterUrl = element.baseUri()
 
-        chapter.setUrlWithoutDomain(if (!chapterUrl.startsWith("/")) "/$chapterUrl" else chapterUrl)
+        chapter.setUrlWithoutDomain(chapterUrl)
         chapter.name = chapterName
-        chapter.date_upload = infoElem.text().substringAfter("Дата:").substringBefore("Просмотров").trim().let {
+        chapter.scanlator = element.select("table.news_pic2 a[href*=perevod]").text()
+        chapter.date_upload = element.select("table.news_pic2 span.small2:contains(/)").text().let {
             try {
-                SimpleDateFormat("dd MMMM yyyy", Locale("ru")).parse(it)?.time ?: 0L
+                SimpleDateFormat("d/MM/yyyy", Locale("ru")).parse(it)?.time ?: 0L
             } catch (e: Exception) {
                 0
             }
@@ -192,19 +202,17 @@ class Nudemoon : ParsedHttpSource() {
         return chapter
     }
 
-    override fun pageListParse(response: Response): List<Page> {
-        val imgScript = response.asJsoup().select("script:containsData(var images)").first().data()
-
-        return Regex("""images\[(\d+)].src\s=\s'(http.*)'""").findAll(imgScript).map {
-            Page(it.groupValues[1].toInt(), imageUrl = it.groupValues[2])
-        }.toList()
+    override fun pageListParse(response: Response): List<Page> = mutableListOf<Page>().apply {
+        response.asJsoup().select("div.gallery-item img.textbox").mapIndexed { index, img ->
+            add(Page(index, imageUrl = img.attr("abs:data-src")))
+        }
     }
 
     override fun imageUrlParse(document: Document) = throw Exception("Not Used")
 
     override fun pageListParse(document: Document): List<Page> = throw Exception("Not Used")
 
-    private class Genre(name: String, val id: String = name.replace(' ', '_')) : Filter.CheckBox(name.capitalize())
+    private class Genre(name: String, val id: String = name.replace(' ', '_')) : Filter.CheckBox(name.replaceFirstChar { it.uppercaseChar() })
     private class GenreList(genres: List<Genre>) : Filter.Group<Genre>("Тэги", genres)
     private class OrderBy : Filter.Sort(
         "Сортировка",

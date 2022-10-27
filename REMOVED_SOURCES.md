@@ -1,6 +1,5 @@
 ## Removed sources
 
-
 ### Too difficult to maintain
 
 - fanfox.net (MangaFox) https://github.com/tachiyomiorg/tachiyomi-extensions/issues/988
@@ -47,6 +46,6 @@
 - Reset Scans https://github.com/tachiyomiorg/tachiyomi-extensions/issues/13168
 - MangaSwat https://github.com/tachiyomiorg/tachiyomi-extensions/issues/13171
 - Manga-Flix https://github.com/tachiyomiorg/tachiyomi-extensions/issues/12843
-- Aresmanga https://github.com/tachiyomiorg/tachiyomi-extensions/issues/13430
 - Astra Scans https://github.com/tachiyomiorg/tachiyomi-extensions/issues/13845
 - Manganoon https://github.com/tachiyomiorg/tachiyomi-extensions/issues/13866
+- MangaPro https://github.com/tachiyomiorg/tachiyomi-extensions/issues/13989

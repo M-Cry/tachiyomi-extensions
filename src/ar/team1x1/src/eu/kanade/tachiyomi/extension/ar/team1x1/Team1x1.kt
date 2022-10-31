@@ -90,7 +90,7 @@ class Team1x1 : ParsedHttpSource() {
     override fun mangaDetailsParse(document: Document): SManga {
 
         return SManga.create().apply {
-            thumbnail_url = document.select("div.text-right+img.shadow-sm").attr("abs:src, abs:img")
+            thumbnail_url = document.select("img.shadow-sm").attr("abs:src")
             title = document.select("div.author-info-title.mb-3 > h1").text()
             author = artist
             artist = document.select("div:nth-child(7) small:nth-child(2) a").text()

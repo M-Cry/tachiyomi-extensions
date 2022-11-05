@@ -11,6 +11,7 @@ import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.webkit.JavascriptInterface
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -350,8 +351,26 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
         Log.d("japscan", "ZJS at $zjsurl")
         val zjs = client.newCall(GET(baseUrl + zjsurl, headers)).execute().body!!.string()
         Log.d("japscan", "webtoon, netdumping initiated")
+
         val pagesElement = document.getElementById("pages")
-        val pagecount = pagesElement.getElementsByTag("option").size
+        var pagecount = pagesElement.getElementsByTag("option").size
+
+        Log.d("japscan", "fallback $pagecount")
+
+        if (pagecount == 0) {
+            Log.d("japscan", "pagecount not found, fallback 1")
+            val element = document.select(".card:first-child .card-body p").toString()
+
+            val regex = """Pages<\/span>: ([0-9]+)<\/p>""".toRegex()
+            val matchResult = regex.find(element)
+
+            val (pagecountFromRegex) = matchResult!!.destructured
+
+            pagecount = pagecountFromRegex.toInt()
+
+            Log.d("japscan", "fallback pagecount with regex, result: $pagecount")
+        }
+
         val pages = ArrayList<Page>()
         val handler = Handler(Looper.getMainLooper())
         val checkNew = ArrayList<String>(pagecount)
@@ -376,6 +395,22 @@ class Japscan : ConfigurableSource, ParsedHttpSource() {
                     webview.settings.domStorageEnabled = true
                     webview.settings.userAgentString = webview.settings.userAgentString.replace("Mobile", "eliboM").replace("Android", "diordnA")
                     webview.webViewClient = object : WebViewClient() {
+                        override fun onPageFinished(view: WebView, url: String?) {
+                            if (pagecount === 0) {
+                                Log.d("japscan", "pagecount not found, fallback 2")
+                                Log.d("japscan", "dynamic page count detected, loading it through JS")
+                                super.onPageFinished(view, url)
+                                view.evaluateJavascript(
+                                    "(function() { return document.getElementById('pages').length; })();",
+                                    object : ValueCallback<String> {
+                                        override fun onReceiveValue(numberOfPages: String?) {
+                                            pagecount = numberOfPages!!.toInt()
+                                        }
+                                    }
+                                )
+                            }
+                        }
+
                         override fun shouldInterceptRequest(
                             view: WebView,
                             request: WebResourceRequest

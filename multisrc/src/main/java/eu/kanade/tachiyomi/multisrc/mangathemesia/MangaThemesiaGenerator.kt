@@ -14,7 +14,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
     override val baseVersionCode: Int = 21
 
     override val sources = listOf(
-        MultiLang("Asura Scans", "https://www.asurascans.com", listOf("en", "tr"), className = "AsuraScansFactory", pkgName = "asurascans", overrideVersionCode = 16),
+        MultiLang("Asura Scans", "https://asura.gg", listOf("en", "tr"), className = "AsuraScansFactory", pkgName = "asurascans", overrideVersionCode = 17),
         MultiLang("Flame Scans", "https://flamescans.org", listOf("ar", "en"), className = "FlameScansFactory", pkgName = "flamescans", overrideVersionCode = 2),
         MultiLang("Komik Lab", "https://komiklab.com", listOf("en", "id"), className = "KomikLabFactory", pkgName = "komiklab", overrideVersionCode = 1),
         MultiLang("Miau Scan", "https://miauscan.com", listOf("es", "pt-BR")),
@@ -65,7 +65,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("MangKomik", "https://mangkomik.com", "id"),
         SingleLang("Mangás Chan", "https://mangaschan.com", "pt-BR", className = "MangasChan"),
         SingleLang("Manhwa Freak", "https://manhwafreak.com", "en", overrideVersionCode = 1),
-        SingleLang("ManhwaDesu", "https://manhwadesu.me", "id", isNsfw = true, overrideVersionCode = 1),
+        SingleLang("ManhwaDesu", "https://manhwadesu.co", "id", isNsfw = true, overrideVersionCode = 2),
         SingleLang("ManhwaIndo", "https://manhwaindo.id", "id", isNsfw = true, overrideVersionCode = 2),
         SingleLang("ManhwaLand.mom", "https://manhwaland.mom", "id", isNsfw = true, className = "ManhwaLandMom", overrideVersionCode = 1),
         SingleLang("ManhwaList", "https://manhwalist.com", "id", overrideVersionCode = 1),
@@ -77,7 +77,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("Mihentai", "https://mihentai.com", "all", isNsfw = true, overrideVersionCode = 2),
         SingleLang("Mode Scanlator", "https://modescanlator.com", "pt-BR", overrideVersionCode = 8),
         SingleLang("Nekomik", "https://nekomik.com", "id"),
-        SingleLang("Ngomik", "https://ngomik.net", "id", overrideVersionCode = 1),
+        SingleLang("Ngomik", "https://ngomik.net", "id", overrideVersionCode = 2),
         SingleLang("NIGHT SCANS", "https://nightscans.org", "en", isNsfw = true, className = "NightScans"),
         SingleLang("Nocturnal Scans", "https://nocturnalscans.com", "en", overrideVersionCode = 1),
         SingleLang("Omega Scans", "https://omegascans.org", "en", isNsfw = true),

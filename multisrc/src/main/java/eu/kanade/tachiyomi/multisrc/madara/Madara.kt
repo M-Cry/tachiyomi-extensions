@@ -665,9 +665,22 @@ abstract class Madara(
                 .toMutableSet()
 
             // add tag(s) to genre
+            val mangaTitle = try {
+                manga.title
+            } catch (_: UninitializedPropertyAccessException) {
+                "not initialized"
+            }
+
             if (mangaDetailsSelectorTag.isNotEmpty()) {
                 select(mangaDetailsSelectorTag).forEach { element ->
-                    if (genres.contains(element.text()).not()) {
+                    if (genres.contains(element.text()).not() &&
+                        element.text().length <= 25 &&
+                        element.text().contains("read", true).not() &&
+                        element.text().contains(name, true).not() &&
+                        element.text().contains(name.replace(" ", ""), true).not() &&
+                        element.text().contains(mangaTitle, true).not() &&
+                        element.text().contains(altName, true).not()
+                    ) {
                         genres.add(element.text().lowercase(Locale.ROOT))
                     }
                 }

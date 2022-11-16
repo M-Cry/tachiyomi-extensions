@@ -20,6 +20,7 @@ import eu.kanade.tachiyomi.extension.ru.newbie.dto.SubSearchDto
 import eu.kanade.tachiyomi.network.GET
 import eu.kanade.tachiyomi.network.POST
 import eu.kanade.tachiyomi.network.asObservableSuccess
+import eu.kanade.tachiyomi.network.interceptor.rateLimitHost
 import eu.kanade.tachiyomi.source.ConfigurableSource
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
@@ -31,6 +32,7 @@ import eu.kanade.tachiyomi.source.online.HttpSource
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.Headers
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -48,6 +50,8 @@ import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.absoluteValue
+import kotlin.random.Random
 
 class Newbie : ConfigurableSource, HttpSource() {
     override val name = "NewManga(Newbie)"
@@ -66,8 +70,10 @@ class Newbie : ConfigurableSource, HttpSource() {
 
     private var branches = mutableMapOf<String, List<BranchesDto>>()
 
+    private val userAgentRandomizer = "${Random.nextInt().absoluteValue}"
+
     override fun headersBuilder(): Headers.Builder = Headers.Builder()
-        .add("User-Agent", "Tachiyomi " + System.getProperty("http.agent"))
+        .add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36 Edg/100.0.$userAgentRandomizer")
         .add("Referer", baseUrl)
 
     private fun imageContentTypeIntercept(chain: Interceptor.Chain): Response {
@@ -81,7 +87,8 @@ class Newbie : ConfigurableSource, HttpSource() {
     }
 
     override val client: OkHttpClient =
-        network.client.newBuilder()
+        network.cloudflareClient.newBuilder()
+            .rateLimitHost(API_URL.toHttpUrl(), 2)
             .addInterceptor { imageContentTypeIntercept(it) }
             .build()
 

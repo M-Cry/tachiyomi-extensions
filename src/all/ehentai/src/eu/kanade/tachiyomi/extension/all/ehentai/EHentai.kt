@@ -90,7 +90,7 @@ abstract class EHentai(
         }
 
         // Add to page if required
-        val hasNextPage = doc.select("a[onclick=return false]").last()?.text() == ">"
+        val hasNextPage = doc.select("a#unext[href]").hasText()
 
         return MangasPage(parsedMangas, hasNextPage)
     }
@@ -171,6 +171,7 @@ abstract class EHentai(
         if (uri.toString().contains("f_spf") || uri.toString().contains("f_spt")) {
             if (page > 1) uri.appendQueryParameter("from", lastMangaId)
         }
+
         return exGet(uri.toString(), page)
     }
 
@@ -181,9 +182,11 @@ abstract class EHentai(
     override fun latestUpdatesParse(response: Response) = genericMangaParse(response)
 
     private fun exGet(url: String, page: Int? = null, additionalHeaders: Headers? = null, cache: Boolean = true): Request {
+        //pages no longer exist, if app attempts to go to the first page after a request, do not include the page append
+        val pageIndex = if (page == 1) null else page
         return GET(
-            page?.let {
-                addParam(url, "page", (page - 1).toString())
+            pageIndex?.let {
+                addParam(url, "next", lastMangaId)
             } ?: url,
             additionalHeaders?.let { header ->
                 val headers = headers.newBuilder()
@@ -194,6 +197,7 @@ abstract class EHentai(
                 }
                 headers.build()
             } ?: headers
+
         ).let {
             if (!cache) {
                 it.newBuilder().cacheControl(CacheControl.FORCE_NETWORK).build()

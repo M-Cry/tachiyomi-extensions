@@ -1,6 +1,7 @@
 package eu.kanade.tachiyomi.extension.vi.hentaivn
 
 import eu.kanade.tachiyomi.network.GET
+import eu.kanade.tachiyomi.network.asObservableSuccess
 import eu.kanade.tachiyomi.source.model.Filter
 import eu.kanade.tachiyomi.source.model.FilterList
 import eu.kanade.tachiyomi.source.model.MangasPage
@@ -17,13 +18,14 @@ import okhttp3.Request
 import okhttp3.Response
 import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
+import rx.Observable
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 class HentaiVN : ParsedHttpSource() {
 
-    override val baseUrl = "https://hentaivn.la"
+    override val baseUrl = "https://hentaivn.tv"
     override val lang = "vi"
     override val name = "HentaiVN"
     override val supportsLatest = true
@@ -73,7 +75,7 @@ class HentaiVN : ParsedHttpSource() {
 
     override fun chapterListRequest(manga: SManga): Request {
         val mangaId = manga.url.substringAfterLast("/").substringBefore('-')
-        return GET("https://hentaivn.fun/list-showchapter.php?idchapshow=$mangaId", headers)
+        return GET("$baseUrl/list-showchapter.php?idchapshow=$mangaId", headers)
     }
 
     override fun imageUrlParse(document: Document) = ""
@@ -161,6 +163,33 @@ class HentaiVN : ParsedHttpSource() {
     }
 
     override fun searchMangaNextPageSelector() = "ul.pagination > li:contains(Cuối)"
+
+    private fun searchMangaByIdRequest(id: String) = GET("$baseUrl/tim-kiem-truyen.html?key=$id", headers)
+    private fun searchMangaByIdParse(response: Response, ids: String): MangasPage {
+        val details = mangaDetailsParse(response)
+        details.url = "/$ids-doc-truyen-id.html"
+        return MangasPage(listOf(details), false)
+    }
+
+    override fun fetchSearchManga(page: Int, query: String, filters: FilterList): Observable<MangasPage> {
+        return when {
+            query.startsWith(PREFIX_ID_SEARCH) -> {
+                val ids = query.removePrefix(PREFIX_ID_SEARCH)
+                client.newCall(searchMangaByIdRequest(ids))
+                    .asObservableSuccess()
+                    .map { response -> searchMangaByIdParse(response, ids) }
+            }
+            query.toIntOrNull() != null -> {
+                client.newCall(searchMangaByIdRequest(query))
+                    .asObservableSuccess()
+                    .map { response -> searchMangaByIdParse(response, query) }
+            }
+            else -> super.fetchSearchManga(page, query, filters)
+        }
+    }
+    companion object {
+        const val PREFIX_ID_SEARCH = "id:"
+    }
 
     override fun searchMangaRequest(page: Int, query: String, filters: FilterList): Request {
         val url = "$searchUrl?name=$query&page=$page&dou=&char=&group=0&search=".toHttpUrlOrNull()!!.newBuilder()

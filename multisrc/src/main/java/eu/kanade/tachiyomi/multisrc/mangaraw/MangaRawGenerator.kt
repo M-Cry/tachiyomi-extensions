@@ -12,7 +12,8 @@ class MangaRawGenerator : ThemeSourceGenerator {
 
     override val sources = listOf(
         SingleLang("SyoSetu", "https://syosetu.top", "ja"),
-        SingleLang("MangaRaw", "https://manga9.co", "ja", pkgName = "manga9co"),
+        SingleLang("MangaRaw", "https://manga1001.in", "ja", pkgName = "manga9co", overrideVersionCode = 1),
+        SingleLang("MangaRawRU", "https://mangaraw.ru", "ja"),
     )
 
     companion object {

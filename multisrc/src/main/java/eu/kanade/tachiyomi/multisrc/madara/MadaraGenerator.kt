@@ -10,7 +10,7 @@ class MadaraGenerator : ThemeSourceGenerator {
 
     override val themeClass = "Madara"
 
-    override val baseVersionCode: Int = 26
+    override val baseVersionCode: Int = 27
 
     override val sources = listOf(
         MultiLang("Leviatan Scans", "https://leviatanscans.com", listOf("en", "es"), className = "LeviatanScansFactory", overrideVersionCode = 13),
@@ -32,6 +32,7 @@ class MadaraGenerator : ThemeSourceGenerator {
         SingleLang("Akuma no Tenshi", "https://akumanotenshi.com", "pt-BR", className = "AkumaNoTenshi"),
         SingleLang("AkuManga", "https://akumanga.com", "ar", overrideVersionCode = 1),
         SingleLang("Akuzenai Arts", "https://akuzenaiarts.org", "en"),
+        SingleLang("Aleatória Scan", "https://aleatoriascan.xyz", "pt-BR", className = "AleatoriaScan"),
         SingleLang("AllPornComic", "https://allporncomic.com", "en", isNsfw = true),
         SingleLang("AllTopManga", "https://alltopmanga.com", "en", isNsfw = true),
         SingleLang("Aln Scans", "https://alnscans.com", "en"),
@@ -81,7 +82,6 @@ class MadaraGenerator : ThemeSourceGenerator {
         SingleLang("Decadence Scans", "https://reader.decadencescans.com", "en", isNsfw = true, overrideVersionCode = 2),
         SingleLang("DiamondFansub", "https://diamondfansub.com", "tr", overrideVersionCode = 1),
         SingleLang("Disaster Scans", "https://disasterscans.com", "en", overrideVersionCode = 2),
-        SingleLang("Diskus Scan", "https://diskusscan.com", "pt-BR", overrideVersionCode = 1),
         SingleLang("DokkoManga", "https://dokkomanga.xyz", "es"),
         SingleLang("DoujinHentai", "https://doujinhentai.net", "es", isNsfw = true, overrideVersionCode = 1),
         SingleLang("DragonTranslation", "https://dragontranslation.com", "es", isNsfw = true, overrideVersionCode = 4),
@@ -431,7 +431,7 @@ class MadaraGenerator : ThemeSourceGenerator {
         SingleLang("Winter Scan", "https://winterscan.com", "pt-BR", overrideVersionCode = 4),
         SingleLang("Wonderland Scan", "https://wonderlandscan.com", "pt-BR", overrideVersionCode = 3),
         SingleLang("WoopRead", "https://woopread.com", "en", overrideVersionCode = 1),
-        SingleLang("WorldManhwas", "https://worldmanhwas.com", "id", isNsfw = true),
+        SingleLang("WorldManhwas", "https://worldmanhwas.info", "id", isNsfw = true, overrideVersionCode = 1),
         SingleLang("WuxiaWorld", "https://wuxiaworld.site", "en", overrideVersionCode = 1),
         SingleLang("YANP Fansub", "https://melhorcasal.com", "pt-BR", isNsfw = true),
         SingleLang("Yaoi Comics", "https://ycscan.com", "pt-BR", isNsfw = true),
@@ -442,7 +442,7 @@ class MadaraGenerator : ThemeSourceGenerator {
         SingleLang("YaoiToon", "https://yaoitoon.com", "en", isNsfw = true),
         SingleLang("Yetişkin Rüya Manga", "https://yetiskin.ruyamanga.com", "tr", isNsfw = true, className = "YetiskinRuyaManga"),
         SingleLang("YonaBar", "https://yonabar.com", "ar", isNsfw = true, overrideVersionCode = 2),
-        SingleLang("YugenMangas", "https://yugenmangas.com.br", "pt-BR"),
+        SingleLang("YugenMangas", "https://yugenmangas.com.br", "pt-BR", overrideVersionCode = 1),
         SingleLang("Yuri Verso", "https://yuri.live", "pt-BR", overrideVersionCode = 3),
         SingleLang("Zero Scan", "https://zeroscan.com.br", "pt-BR", isNsfw = true),
         SingleLang("Zinmanga", "https://zinmanga.com", "en", overrideVersionCode = 1),

@@ -11,7 +11,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
 
     override val themeClass = "MangaThemesia"
 
-    override val baseVersionCode: Int = 21
+    override val baseVersionCode: Int = 22
 
     override val sources = listOf(
         MultiLang("Asura Scans", "https://asura.gg", listOf("en", "tr"), className = "AsuraScansFactory", pkgName = "asurascans", overrideVersionCode = 17),
@@ -27,6 +27,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("Clayrer", "https://clayrer.net", "es"),
         SingleLang("Constellar Scans", "https://constellarscans.com", "en", isNsfw = true, overrideVersionCode = 1),
         SingleLang("Cosmic Scans", "https://cosmicscans.com", "en", overrideVersionCode = 1),
+        SingleLang("Diskus Scan", "https://diskusscan.com", "pt-BR", overrideVersionCode = 7),
         SingleLang("Dojing.net", "https://dojing.net", "id", isNsfw = true, className = "DojingNet"),
         SingleLang("DuniaKomik.id", "https://duniakomik.id", "id", className = "DuniaKomikId"),
         SingleLang("FlameScans.fr", "https://flamescans.fr", "fr", className = "FlameScansFR"),
@@ -45,9 +46,12 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("Kiryuu", "https://kiryuu.id", "id", overrideVersionCode = 6),
         SingleLang("Komik AV", "https://komikav.com", "id", overrideVersionCode = 1),
         SingleLang("Komik Cast", "https://komikcast.site", "id", overrideVersionCode = 18),
+        SingleLang("KomikDewasa", "https://komikdewasa.org", "id", isNsfw = true),
         SingleLang("Komik Station", "https://komikstation.co", "id", overrideVersionCode = 3),
         SingleLang("KomikIndo.co", "https://komikindo.co", "id", className = "KomikindoCo", overrideVersionCode = 3),
         SingleLang("KomikMama", "https://komikmama.co", "id", overrideVersionCode = 1),
+        SingleLang("KomikManhwa", "https://komikmanhwa.me", "id", isNsfw = true),
+        SingleLang("KumaPoi", "https://kumapoi.me", "id", isNsfw = true),
         SingleLang("Komiku.com", "https://komiku.com", "id", className = "KomikuCom"),
         SingleLang("Kuma Scans (Kuma Translation)", "https://kumascans.com", "en", className = "KumaScans", overrideVersionCode = 1),
         SingleLang("LianScans", "https://www.lianscans.my.id", "id", isNsfw = true),
@@ -67,14 +71,15 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("Manhwa Freak", "https://manhwafreak.com", "en", overrideVersionCode = 1),
         SingleLang("ManhwaDesu", "https://manhwadesu.co", "id", isNsfw = true, overrideVersionCode = 2),
         SingleLang("ManhwaIndo", "https://manhwaindo.id", "id", isNsfw = true, overrideVersionCode = 2),
-        SingleLang("ManhwaLand.mom", "https://manhwaland.mom", "id", isNsfw = true, className = "ManhwaLandMom", overrideVersionCode = 1),
-        SingleLang("ManhwaList", "https://manhwalist.com", "id", overrideVersionCode = 1),
+        SingleLang("ManhwaLand.mom", "https://manhwaland.guru", "id", isNsfw = true, className = "ManhwaLandMom", overrideVersionCode = 3),
+        SingleLang("ManhwaList", "https://manhwalist.in", "id", overrideVersionCode = 2),
         SingleLang("Manhwax", "https://manhwax.com", "en", isNsfw = true),
         SingleLang("Mareceh", "https://mareceh.com", "id", isNsfw = true, pkgName = "mangceh", overrideVersionCode = 10),
         SingleLang("Martial Manga", "https://martialmanga.com", "es"),
         SingleLang("MasterKomik", "https://masterkomik.com", "id", overrideVersionCode = 1),
         SingleLang("MELOKOMIK", "https://melokomik.xyz", "id"),
         SingleLang("Mihentai", "https://mihentai.com", "all", isNsfw = true, overrideVersionCode = 2),
+        SingleLang("MirrorDesu", "https://mirrordesu.me", "id", isNsfw = true),
         SingleLang("Mode Scanlator", "https://modescanlator.com", "pt-BR", overrideVersionCode = 8),
         SingleLang("Mundo Mangá-Kun", "https://mundomangakun.com.br", "pt-BR", className = "MundoMangaKun", isNsfw = true),
         SingleLang("Nekomik", "https://nekomik.com", "id"),
@@ -96,7 +101,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("Ryukonesia", "https://ryukonesia.net", "id"),
         SingleLang("Sekaikomik", "https://www.sekaikomik.live", "id", isNsfw = true, overrideVersionCode = 9),
         SingleLang("Sekaikomik", "https://www.sekaikomik.site", "id", isNsfw = true, overrideVersionCode = 8),
-        SingleLang("Sekte Doujin", "https://sektedoujin.club", "id", isNsfw = true, overrideVersionCode = 3),
+        SingleLang("Sekte Doujin", "https://sektedoujin.lol", "id", isNsfw = true, overrideVersionCode = 4),
         SingleLang("Senpai Ediciones", "http://senpaiediciones.com", "es"),
         SingleLang("Shadow Mangas", "https://shadowmangas.com", "es"),
         SingleLang("Shea Manga", "https://sheakomik.com", "id", overrideVersionCode = 4),
@@ -108,7 +113,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("Tarot Scans", "https://www.tarotscans.com", "tr"),
         SingleLang("The Apollo Team", "https://theapollo.team", "en"),
         SingleLang("Tsundoku Traduções", "https://tsundoku.com.br", "pt-BR", className = "TsundokuTraducoes", overrideVersionCode = 9),
-        SingleLang("TukangKomik", "https://tukangkomik.com", "id"),
+        SingleLang("TukangKomik", "https://tukangkomik.id", "id", overrideVersionCode = 1),
         SingleLang("TurkToon", "https://turktoon.com", "tr"),
         SingleLang("Uzay Manga", "https://uzaymanga.com", "tr", overrideVersionCode = 4),
         SingleLang("Walpurgi Scan", "https://www.walpurgiscan.com", "it", overrideVersionCode = 6, className = "WalpurgisScan", pkgName = "walpurgisscan"),

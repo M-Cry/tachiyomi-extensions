@@ -169,7 +169,7 @@ class ReaperScans : ParsedHttpSource() {
             thumbnail_url = document.select("div > img").first().attr("abs:src")
             title = document.select("h1").first().text()
 
-            status = when (document.select("dt:contains(Release Status)").next().text()) {
+            status = when (document.select("dt:contains(Release Status)").next().first().text()) {
                 "On hold" -> SManga.ON_HIATUS
                 "Complete" -> SManga.COMPLETED
                 "Ongoing" -> SManga.ONGOING
@@ -276,7 +276,7 @@ class ReaperScans : ParsedHttpSource() {
     // Page
     override fun pageListParse(document: Document): List<Page> {
         return document.select("img.max-w-full").mapIndexed { index, element ->
-            Page(index, imageUrl = element.attr("src"))
+            Page(index, imageUrl = element.attr("abs:src"))
         }
     }
 

@@ -6,22 +6,46 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jsoup.Jsoup
 import java.text.SimpleDateFormat
-import java.util.Locale
 
 @Serializable
-data class HeanCmsSearchDto(
+data class HeanCmsQuerySearchDto(
     val data: List<HeanCmsSeriesDto> = emptyList(),
-    val meta: HeanCmsSearchMetaDto? = null
+    val meta: HeanCmsQuerySearchMetaDto? = null
 )
 
 @Serializable
-data class HeanCmsSearchMetaDto(
+data class HeanCmsQuerySearchMetaDto(
     @SerialName("current_page") val currentPage: Int,
     @SerialName("last_page") val lastPage: Int
 ) {
 
     val hasNextPage: Boolean
         get() = currentPage < lastPage
+}
+
+@Serializable
+data class HeanCmsSearchDto(
+    val description: String? = null,
+    @SerialName("series_slug") val slug: String,
+    @SerialName("series_type") val type: String,
+    val title: String
+) {
+
+    fun toSManga(
+        apiUrl: String,
+        coverPath: String,
+        slugMap: Map<String, HeanCms.HeanCmsTitle>
+    ): SManga = SManga.create().apply {
+        val slugOnly = slug.replace(HeanCms.TIMESTAMP_REGEX, "")
+        val thumbnailFileName = slugMap[slugOnly]?.thumbnailFileName.orEmpty()
+
+        title = this@HeanCmsSearchDto.title
+        thumbnail_url = when {
+            thumbnailFileName.isNotEmpty() -> "$apiUrl/$coverPath$thumbnailFileName"
+            else -> ""
+        }
+        url = "/series/$slugOnly"
+    }
 }
 
 @Serializable
@@ -52,13 +76,7 @@ data class HeanCmsSeriesDto(
             .sortedBy(HeanCmsTagDto::name)
             .joinToString { it.name }
         thumbnail_url = "$apiUrl/$coverPath$thumbnail"
-        status = when (this@HeanCmsSeriesDto.status) {
-            "Ongoing" -> SManga.ONGOING
-            "Hiatus" -> SManga.ON_HIATUS
-            "Dropped" -> SManga.CANCELLED
-            "Completed", "Finished" -> SManga.COMPLETED
-            else -> SManga.UNKNOWN
-        }
+        status = this@HeanCmsSeriesDto.status?.toStatus() ?: SManga.UNKNOWN
         url = "/series/${slug.replace(HeanCms.TIMESTAMP_REGEX, "")}"
     }
 }
@@ -75,17 +93,11 @@ data class HeanCmsChapterDto(
     @SerialName("created_at") val createdAt: String,
 ) {
 
-    fun toSChapter(seriesSlug: String): SChapter = SChapter.create().apply {
+    fun toSChapter(seriesSlug: String, dateFormat: SimpleDateFormat): SChapter = SChapter.create().apply {
         name = this@HeanCmsChapterDto.name.trim()
-        date_upload = runCatching { DATE_FORMAT.parse(createdAt.substringBefore("."))?.time }
+        date_upload = runCatching { dateFormat.parse(createdAt)?.time }
             .getOrNull() ?: 0L
         url = "/series/$seriesSlug/$slug#$id"
-    }
-
-    companion object {
-        private val DATE_FORMAT by lazy {
-            SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US)
-        }
     }
 }
 
@@ -100,7 +112,7 @@ data class HeanCmsReaderContentDto(
 )
 
 @Serializable
-data class HeanCmsSearchPayloadDto(
+data class HeanCmsQuerySearchPayloadDto(
     val order: String,
     val page: Int,
     @SerialName("order_by") val orderBy: String,
@@ -108,3 +120,14 @@ data class HeanCmsSearchPayloadDto(
     @SerialName("series_type") val type: String,
     @SerialName("tags_ids") val tagIds: List<Int> = emptyList()
 )
+
+@Serializable
+data class HeanCmsSearchPayloadDto(val term: String)
+
+fun String.toStatus(): Int = when (this) {
+    "Ongoing" -> SManga.ONGOING
+    "Hiatus" -> SManga.ON_HIATUS
+    "Dropped" -> SManga.CANCELLED
+    "Completed", "Finished" -> SManga.COMPLETED
+    else -> SManga.UNKNOWN
+}

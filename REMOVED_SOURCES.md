@@ -2,15 +2,15 @@
 
 ### Too difficult to maintain
 
-- CocoManga (COCO漫画) https://github.com/tachiyomiorg/tachiyomi-extensions/pull/11445
+- ColaManhua (COLA漫画) https://github.com/tachiyomiorg/tachiyomi-extensions/pull/11445
 - CopyManga (拷贝漫画) https://github.com/tachiyomiorg/tachiyomi-extensions/pull/12376
-- fanfox.net (MangaFox) https://github.com/tachiyomiorg/tachiyomi-extensions/issues/988
 - Hitomi.la https://github.com/tachiyomiorg/tachiyomi-extensions/pull/11613
 - HQ Dragon https://github.com/tachiyomiorg/tachiyomi-extensions/pull/7065
 - Koushoku https://github.com/tachiyomiorg/tachiyomi-extensions/pull/13329
 - Mangá Host https://github.com/tachiyomiorg/tachiyomi-extensions/pull/7065
 - Mangá Livre and Leitor.net https://github.com/tachiyomiorg/tachiyomi-extensions/pull/8679
-- mangago.me https://github.com/tachiyomiorg/tachiyomi-extensions/issues/988
+- MangaDig https://github.com/tachiyomiorg/tachiyomi-extensions/pull/14974
+- Mangas.pw (Mangas.in) https://github.com/tachiyomiorg/tachiyomi-extensions/pull/9489
 - MangaYabu! https://github.com/tachiyomiorg/tachiyomi-extensions/pull/9336
 - ManhuaScan https://github.com/tachiyomiorg/tachiyomi-extensions/pull/7129
 - ManhwaHot https://github.com/tachiyomiorg/tachiyomi-extensions/pull/7129

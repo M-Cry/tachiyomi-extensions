@@ -169,7 +169,7 @@ abstract class Madara(
     protected open val fetchGenres: Boolean = true
 
     override fun headersBuilder(): Headers.Builder = Headers.Builder()
-        .add("Referer", baseUrl)
+        .add("Referer", "$baseUrl/")
 
     // Popular Manga
 
@@ -358,6 +358,7 @@ abstract class Madara(
                             if (list.isNotEmpty()) { list.forEach { genre -> url.addQueryParameter("genre[]", genre.id) } }
                         }
                 }
+                else -> {}
             }
         }
         return GET(url.toString(), headers)
@@ -488,6 +489,7 @@ abstract class Madara(
                             taxQueryIdx++
                         }
                     }
+                    else -> {}
                 }
             }
         }
@@ -816,7 +818,7 @@ abstract class Madara(
     }
     open val updatingRegex = "Updating|Atualizando".toRegex(RegexOption.IGNORE_CASE)
 
-    public fun String.notUpdating(): Boolean {
+    fun String.notUpdating(): Boolean {
         return this.contains(updatingRegex).not()
     }
 
@@ -852,7 +854,7 @@ abstract class Madara(
         val xhrHeaders = headersBuilder()
             .add("Content-Length", form.contentLength().toString())
             .add("Content-Type", form.contentType().toString())
-            .add("Referer", baseUrl)
+            .add("Referer", "$baseUrl/")
             .add("X-Requested-With", "XMLHttpRequest")
             .build()
 
@@ -861,7 +863,7 @@ abstract class Madara(
 
     protected open fun xhrChaptersRequest(mangaUrl: String): Request {
         val xhrHeaders = headersBuilder()
-            .add("Referer", baseUrl)
+            .add("Referer", "$baseUrl/")
             .add("X-Requested-With", "XMLHttpRequest")
             .build()
 

@@ -11,11 +11,11 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
 
     override val themeClass = "MangaThemesia"
 
-    override val baseVersionCode: Int = 22
+    override val baseVersionCode: Int = 24
 
     override val sources = listOf(
-        MultiLang("Asura Scans", "https://asura.gg", listOf("en", "tr"), className = "AsuraScansFactory", pkgName = "asurascans", overrideVersionCode = 17),
-        MultiLang("Flame Scans", "https://flamescans.org", listOf("ar", "en"), className = "FlameScansFactory", pkgName = "flamescans", overrideVersionCode = 3),
+        MultiLang("Asura Scans", "https://www.asurascans.com", listOf("en", "tr"), className = "AsuraScansFactory", pkgName = "asurascans", overrideVersionCode = 18),
+        MultiLang("Flame Scans", "https://flamescans.org", listOf("en"), className = "FlameScansFactory", pkgName = "flamescans", overrideVersionCode = 4),
         MultiLang("Komik Lab", "https://komiklab.com", listOf("en", "id"), className = "KomikLabFactory", pkgName = "komiklab", overrideVersionCode = 1),
         MultiLang("Miau Scan", "https://miauscan.com", listOf("es", "pt-BR")),
         SingleLang("Animated Glitched Scans", "https://anigliscans.com", "en"),
@@ -25,14 +25,13 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("Azure Scans", "https://azuremanga.com", "en", overrideVersionCode = 1),
         SingleLang("Boosei", "https://boosei.net", "id", overrideVersionCode = 2),
         SingleLang("Clayrer", "https://clayrer.net", "es"),
-        SingleLang("Constellar Scans", "https://constellarscans.com", "en", isNsfw = true, overrideVersionCode = 1),
+        SingleLang("Constellar Scans", "https://constellarscans.com", "en", isNsfw = true, overrideVersionCode = 7),
         SingleLang("Cosmic Scans", "https://cosmicscans.com", "en", overrideVersionCode = 1),
         SingleLang("Diskus Scan", "https://diskusscan.com", "pt-BR", overrideVersionCode = 7),
         SingleLang("Dojing.net", "https://dojing.net", "id", isNsfw = true, className = "DojingNet"),
         SingleLang("DuniaKomik.id", "https://duniakomik.id", "id", className = "DuniaKomikId"),
         SingleLang("FlameScans.fr", "https://flamescans.fr", "fr", className = "FlameScansFR"),
         SingleLang("Franxx Mangás", "https://franxxmangas.net", "pt-BR", className = "FranxxMangas", isNsfw = true),
-        SingleLang("Gabut Scans", "https://gabutscans.com", "id", overrideVersionCode = 1),
         SingleLang("Gecenin Lordu", "https://geceninlordu.com", "tr", overrideVersionCode = 1),
         SingleLang("GoGoManga", "https://gogomanga.fun", "en", overrideVersionCode = 1),
         SingleLang("Gremory Mangas", "https://gremorymangas.com", "es"),
@@ -65,11 +64,11 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("MangaTale", "https://mangatale.co", "id"),
         SingleLang("MangaWT", "https://mangawt.com", "tr", overrideVersionCode = 5),
         SingleLang("Mangayaro", "https://mangayaro.net", "id"),
-        SingleLang("MangaSwat", "https://swatmanga.me", "ar", overrideVersionCode = 6),
+        SingleLang("MangaSwat", "https://swatmanga.net", "ar", overrideVersionCode = 6),
         SingleLang("MangKomik", "https://mangkomik.net", "id", overrideVersionCode = 1),
         SingleLang("Mangás Chan", "https://mangaschan.com", "pt-BR", className = "MangasChan"),
         SingleLang("Manhwa Freak", "https://manhwafreak.com", "en", overrideVersionCode = 1),
-        SingleLang("ManhwaDesu", "https://manhwadesu.co", "id", isNsfw = true, overrideVersionCode = 2),
+        SingleLang("ManhwaDesu", "https://manhwadesu.org", "id", isNsfw = true, overrideVersionCode = 3),
         SingleLang("ManhwaIndo", "https://manhwaindo.id", "id", isNsfw = true, overrideVersionCode = 2),
         SingleLang("ManhwaLand.mom", "https://manhwaland.guru", "id", isNsfw = true, className = "ManhwaLandMom", overrideVersionCode = 3),
         SingleLang("ManhwaList", "https://manhwalist.in", "id", overrideVersionCode = 2),
@@ -99,8 +98,7 @@ class MangaThemesiaGenerator : ThemeSourceGenerator {
         SingleLang("Readkomik", "https://readkomik.com", "en", className = "ReadKomik", overrideVersionCode = 1),
         SingleLang("Realm Scans", "https://realmscans.com", "en", overrideVersionCode = 5),
         SingleLang("Ryukonesia", "https://ryukonesia.net", "id"),
-        SingleLang("Sekaikomik", "https://www.sekaikomik.live", "id", isNsfw = true, overrideVersionCode = 9),
-        SingleLang("Sekaikomik", "https://www.sekaikomik.site", "id", isNsfw = true, overrideVersionCode = 8),
+        SingleLang("Sekaikomik", "https://www.sekaikomik.pro", "id", isNsfw = true, overrideVersionCode = 10),
         SingleLang("Sekte Doujin", "https://sektedoujin.lol", "id", isNsfw = true, overrideVersionCode = 4),
         SingleLang("Senpai Ediciones", "http://senpaiediciones.com", "es"),
         SingleLang("Shadow Mangas", "https://shadowmangas.com", "es"),
